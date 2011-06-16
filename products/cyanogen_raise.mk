@@ -15,6 +15,7 @@ PRODUCT_BRAND := zte
 PRODUCT_DEVICE := raise
 PRODUCT_MODEL := raise
 PRODUCT_MANUFACTURER := ZTE
+KERNEL_USE_CM := false
 PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=cyanogen_raise BUILD_ID=FRG83 BUILD_DISPLAY_ID=CM7-2.3-Geno-Goapk BUILD_FINGERPRINT=google/passion/passion:2.3.3/Geno/102588:user/release-keys PRIVATE_BUILD_DESC="passion-user 2.3.3 Geno 102588 release-keys"
 
 
@@ -33,10 +34,10 @@ ifdef CYANOGEN_NIGHTLY
 else
     ifdef CYANOGEN_RELEASE
         PRODUCT_PROPERTY_OVERRIDES += \
-            ro.modversion=CyanogenMod-7.0.2-raise
+            ro.modversion=CyanogenMod-7.1.0-raise
     else
         PRODUCT_PROPERTY_OVERRIDES += \
-            ro.modversion=CyanogenMod-7.0.2-raise-Geno
+            ro.modversion=CyanogenMod-7.1.0-raise-Geno
     endif
 endif
 

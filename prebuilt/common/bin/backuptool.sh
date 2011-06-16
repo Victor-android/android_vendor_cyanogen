@@ -18,10 +18,18 @@ check_prereq() {
 }
 
 check_installscript() {
-   if [ -f "/tmp/.installscript" -a ! -f "$S/etc/force_backuptool" ];
+   if [ -f "/tmp/.installscript" ] && [ $PROCEED -ne 0 ];
    then
-      echo "/tmp/.installscript found. Skipping backuptool."
-      PROCEED=0;
+      # We have an install script, and ROM versions match!
+      # We now need to check and see if we have force_backup
+      # in either /etc or /tmp/backupdir 
+      if [ -f "$S/etc/force_backuptool" ] || [ -f "$C/force_backuptool" ];
+      then
+         echo "force_backuptool file found, Forcing backuptool."
+      else
+         echo "/tmp/.installscript found. Skipping backuptool."
+         PROCEED=0;
+      fi
    fi
 }
 
@@ -59,6 +67,7 @@ app/SetupWizard.apk app/Provision.apk
 app/soundback.apk
 app/Street.apk
 app/Talk.apk
+app/Talk2.apk
 app/talkback.apk
 app/Twitter.apk
 app/Vending.apk
@@ -68,6 +77,7 @@ etc/permissions/com.google.android.maps.xml
 etc/permissions/features.xml
 framework/com.google.android.maps.jar
 lib/libspeech.so
+lib/libtalk_jni.so
 lib/libvoicesearch.so
 etc/hosts
 etc/custom_backup_list.txt
@@ -130,12 +140,17 @@ restore_file() {
    fi
 }
 
-check_installscript;
+# don't (u)mount system if already done
+UMOUNT=0
 
 case "$1" in
    backup)
-      mount $S
+      if [ ! -f "$S/build.prop" ]; then
+         mount $S
+         UMOUNT=1
+      fi
       check_prereq;
+      check_installscript;
       if [ $PROCEED -ne 0 ];
       then
          rm -rf $C
@@ -146,10 +161,17 @@ case "$1" in
            done
          done
       fi
-      umount $S
+      if [ $UMOUNT -ne 0 ]; then
+         umount $S
+      fi
    ;;
    restore)
+      if [ ! -f "$S/build.prop" ]; then
+         mount $S
+         UMOUNT=1
+      fi
       check_prereq;
+      check_installscript;
       if [ $PROCEED -ne 0 ];
       then
          for file_list in get_files get_custom_files; do
@@ -161,6 +183,10 @@ case "$1" in
          done
          rm -rf $C
       fi
+      if [ $UMOUNT -ne 0 ]; then
+         umount $S
+      fi
+      sync
    ;;
    *)
       echo "Usage: $0 {backup|restore}"
